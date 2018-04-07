@@ -1,0 +1,10 @@
+/.idea/
+/cache/
+/config/
+.DS_Store
+/server/baseserver/log/
+*.pid
+/syncconfig
+/nbproject/private/
+/nbproject/*
+/.project
