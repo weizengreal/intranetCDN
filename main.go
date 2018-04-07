@@ -9,7 +9,7 @@ import (
 
 func init()  {
 	// 初始化全局配置，该函数由 golang 内部调用
-	fmt.Println("I am init function!")
+	fmt.Println("this is main package init function!")
 }
 
 func main() {

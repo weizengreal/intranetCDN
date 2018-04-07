@@ -41,11 +41,11 @@ func SendGet(url string, path string, start int64, end int64) (length int64,err 
 /**
  发送 HEAD 请求，获取资源基本信息
  */
-func SendHead(url string) (length int64,support bool, err error) {
+func SendHead(url string) (length int64,support bool,md5 string, err error) {
 	var req *http.Request
 	req ,err = http.NewRequest("HEAD",url,nil)
 	if err != nil {
-		return 0,false,err
+		return 0,false,"",err
 	}
 	// 要求服务器返回最新的数据而不是缓存
 	req.Header.Set("Cache-Control","no-cache")
@@ -65,5 +65,6 @@ func SendHead(url string) (length int64,support bool, err error) {
 	if resp.Header.Get("Accept-Ranges") != "" {
 		support = true
 	}
-	return length,support,err
+	md5 = resp.Header.Get("Content-Md5")
+	return length,support,md5,err
 }

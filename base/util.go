@@ -3,6 +3,7 @@ package base
 import (
 	"os"
 	"log"
+	"strings"
 )
 
 // 创建一个文件
@@ -35,4 +36,23 @@ func CheckFileStat(path string) bool {
 		return false
 	}
 	return true
+}
+
+// 根据一个链接返回当前下载内容的文件名称
+func GetUriName(url string) (prefixName, fullName string) {
+	urlArr := []byte(url)
+	index := strings.LastIndex(url,"/")
+	if index == -1 {
+		fullName = string(urlArr[0:])
+	} else {
+		fullName = string(urlArr[(index+1):])
+	}
+	fullNameArr := []byte(fullName)
+	pointIndex := strings.LastIndex(fullName,".")
+	if pointIndex == -1 {
+		prefixName = fullName
+	} else {
+		prefixName = string(fullNameArr[:pointIndex])
+	}
+	return prefixName,fullName
 }
