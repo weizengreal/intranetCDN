@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 	"./download"
-	"strings"
-	"os"
+	//"./base"
 )
 
 func init()  {
@@ -14,14 +13,15 @@ func init()  {
 
 func main() {
 	url := "http://kjds-cdn.aibeike.com/webkjdsfiles/3a6c910b45e644739a80522bfd92d4ea.zip"
-	uu := []byte(url)
-	ss := strings.LastIndex(url,"/")
-	fmt.Println(ss)
-	fullname := string(uu[ss+1:])
-	fmt.Println(fullname)
+	fmt.Println(download.Download(url))
 
-	fmt.Println(os.Getwd())
-	fmt.Println(download.SendHead(url))
-	//download.SendGet("http://kjds-cdn.aibeike.com/webkjdsfiles/3a6c910b45e644739a80522bfd92d4ea.zip",
-	//	"/Users/weizeng/vagrant/go/coursewareDelivery/cache",0,100);
+	//block := &base.Block{
+	//	Start : 0,
+	//	End : 200,
+	//	BlockId : "123321123321",
+	//	BlockSize : 200,
+	//	BlockMd5 :"dwdwadw",
+	//}
+	//fmt.Println(block.AttemptCount)
+
 }

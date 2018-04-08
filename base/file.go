@@ -1,36 +1,37 @@
 package base
 
-
 // 当前任务应该使用的文件信息
-type File struct {
+type Resource struct {
 	Path string
 	Url string
 	Name string
 	Length int64
 	FileMd5 string
+	Support bool
 }
 
 // 一个即将下载的 block 块
 type Block struct {
-	BlockId string
 	Start int64
 	End int64
-	Count int64
+	BlockId string
+	BlockSize int64
+	BlockMd5 string // 该 md5 值用于检测缓存文件
+	AttemptCount int64
 	Next *Block
-	BlockMd5 string
 }
 
 // 文件下载上下文
 type Context struct {
-	File *File
-	FileMap map[string]*Block // key 为每一个 block 存储的位置，block 为当前需要下载的内容
+	Res *Resource
+	FileMap map[string]*Block // key 为每一个 block 存储的名称，block 为当前需要下载的内容
 }
 
 // 文件保存指针，用于高速 SendGet 函数应该将文件保存在哪里
 type FileStroage struct {
 	mode int
 	path string
-	file *File
+	Res *Resource
 }
 
 // 为 FileStroage 实现 Writer 接口

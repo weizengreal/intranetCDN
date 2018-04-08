@@ -4,6 +4,9 @@ import (
 	"os"
 	"log"
 	"strings"
+	"crypto/md5"
+	"encoding/hex"
+	"io/ioutil"
 )
 
 // 创建一个文件
@@ -38,6 +41,45 @@ func CheckFileStat(path string) bool {
 	return true
 }
 
+// 检测某个 block 是否正常
+func CheckBlockStat(path string,block *Block) bool {
+	if CheckFileStat(path) {
+		if int64(len(ReadFile(path))) == block.BlockSize {
+			return true
+		} else {
+			return false
+		}
+	}
+	return false
+}
+
+// 读取某个文件并返回 byte 数组
+func ReadFile(path string) []byte {
+	f, err := os.Open(path)
+	defer f.Close()
+	if err != nil {
+		log.Fatalln("read file error while open file!",err)
+	}
+	fileBytes, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Fatalln("read file error while read file!",err)
+	}
+	return fileBytes
+}
+
+// 向某个文件末尾添加内容
+func AppendToFile(srcFile string, bytes []byte) error {
+	f,err := os.OpenFile(srcFile,os.O_WRONLY,0644)
+	defer f.Close()
+	if err != nil {
+		log.Println("open file " + srcFile + "failed!")
+	} else {
+		n,_ := f.Seek(0,os.SEEK_END)
+		_,err = f.WriteAt(bytes,n)
+	}
+	return err
+}
+
 // 根据一个链接返回当前下载内容的文件名称
 func GetUriName(url string) (prefixName, fullName string) {
 	urlArr := []byte(url)
@@ -55,4 +97,11 @@ func GetUriName(url string) (prefixName, fullName string) {
 		prefixName = string(fullNameArr[:pointIndex])
 	}
 	return prefixName,fullName
+}
+
+// 根据传入的字符串生成一个 32 位 MD5
+func MD5(text string) string {
+	ctx := md5.New()
+	ctx.Write([]byte(text))
+	return hex.EncodeToString(ctx.Sum(nil))
 }

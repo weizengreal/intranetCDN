@@ -7,7 +7,6 @@ import (
 	"../base"
 	"io"
 	"strconv"
-	"fmt"
 )
 
 /**
@@ -45,7 +44,7 @@ func SendHead(url string) (length int64,support bool,md5 string, err error) {
 	var req *http.Request
 	req ,err = http.NewRequest("HEAD",url,nil)
 	if err != nil {
-		return 0,false,"",err
+		return -1,false,"",err
 	}
 	// 要求服务器返回最新的数据而不是缓存
 	req.Header.Set("Cache-Control","no-cache")
@@ -59,9 +58,15 @@ func SendHead(url string) (length int64,support bool,md5 string, err error) {
 	}
 	var resp *http.Response
 	resp, err = client.Do(req)
+	if err != nil {
+		return -1,false,"",err
+	}
 	defer resp.Body.Close()
 	length,err = strconv.ParseInt(resp.Header.Get("Content-Length"),10,64)
-	fmt.Println(resp.Header)
+	if err != nil {
+		return -1,false,"",err
+	}
+	// Accept-Ranges 不存在，不支持断点续传
 	if resp.Header.Get("Accept-Ranges") != "" {
 		support = true
 	}
