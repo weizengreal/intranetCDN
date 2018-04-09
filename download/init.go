@@ -5,8 +5,9 @@ import (
 	"../comhttp"
 	"log"
 	"os"
-	"fmt"
 	"flag"
+	"fmt"
+	"encoding/json"
 )
 
 const (
@@ -53,9 +54,9 @@ func assignInit(url string) error {
 	}
 	initBlock()
 
-	fmt.Println(*context.Res)
-	fmt.Println(context.FileMap)
-	fmt.Println(context.TmpPath)
+	bytes,err := json.Marshal(context)
+
+	fmt.Println(string(bytes))
 
 	return nil
 }
@@ -71,6 +72,7 @@ func initBlock()  {
 		block.End = length
 		block.BlockSize = block.End - block.Start
 		block.BlockId = tmpName
+		block.BlockMd5 = context.Res.FileMd5
 		context.FileMap[context.Res.Path] = block
 		//context.TmpPath = append(context.TmpPath, context.Res.Path)
 		return

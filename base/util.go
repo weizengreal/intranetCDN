@@ -7,6 +7,8 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"io/ioutil"
+	"fmt"
+	"io"
 )
 
 // 创建一个文件
@@ -99,7 +101,15 @@ func GetUriName(url string) (prefixName, fullName string) {
 	index := strings.LastIndex(url,"/")
 	if index == -1 {
 		fullName = string(urlArr[0:])
-	} else {
+	} else if index == len(urlArr) - 1 {
+		urlArr = urlArr[0:index]
+		index = strings.LastIndex(url,"/")
+		if index == -1 {
+			fullName = string(urlArr[0:])
+		} else {
+			fullName = string(urlArr[(index+1):])
+		}
+	}else {
 		fullName = string(urlArr[(index+1):])
 	}
 	fullNameArr := []byte(fullName)
@@ -117,4 +127,23 @@ func MD5(text string) string {
 	ctx := md5.New()
 	ctx.Write([]byte(text))
 	return hex.EncodeToString(ctx.Sum(nil))
+}
+
+// 计算文件的 md5 值
+func FileMd5(path string) string {
+	f, err := os.Open(path)
+	if err != nil {
+		fmt.Println("Open file failed!", err)
+		return ""
+	}
+
+	defer f.Close()
+
+	md5hash := md5.New()
+	if _, err := io.Copy(md5hash, f); err != nil {
+		fmt.Println("Copy file failed!", err)
+		return ""
+	}
+
+	return string(md5hash.Sum(nil))
 }

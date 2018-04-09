@@ -5,10 +5,13 @@ import (
 	"../comhttp"
 	"log"
 	"fmt"
+	"crypto/md5"
 )
 
 // 记录当前下载任务的上下文信息，调试阶段先这么写
 var context *base.Context = new(base.Context)
+
+var contextMap map[string] *base.Context = make(map[string] *base.Context)
 
 func Download(url string) error {
 	// 第一步，根据 url 本身和 HEAD 请求初始化文件信息
@@ -40,6 +43,9 @@ func Download(url string) error {
 				log.Println("append file failed!",err)
 				return err
 			}
+			// 计算文件的 MD5 值
+			md5Bytes := md5.Sum(bytes)
+			context.FileMap[context.TmpPath[i]].BlockMd5 = string(md5Bytes[:])
 		}
 	}
 	return nil
