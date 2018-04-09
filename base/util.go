@@ -16,9 +16,22 @@ func CreateFile(path string) (f *os.File, err error) {
 	}
 	f, err = os.Create(path)
 	if err != nil {
-		log.Println("create file" + path + "faild!" )
+		log.Println("create file" + path + " faild!" )
 	}
 	return f,err
+}
+
+// 只创建文件不返回资源句柄
+func CreateFileOnly(path string) (err error) {
+	if CheckFileStat(path) {
+		DeleteFile(path)
+	}
+	f, err := os.Create(path)
+	defer f.Close()
+	if err != nil {
+		log.Println("create file" + path + " faild!" )
+	}
+	return err
 }
 
 // 删除一个文件
@@ -28,7 +41,7 @@ func DeleteFile(path string) error {
 	}
 	err := os.Remove(path)
 	if err != nil {
-		log.Println("delete file " + path + "faild!")
+		log.Println("delete file " + path + " faild!")
 	}
 	return err
 }
@@ -72,7 +85,7 @@ func AppendToFile(srcFile string, bytes []byte) error {
 	f,err := os.OpenFile(srcFile,os.O_WRONLY,0644)
 	defer f.Close()
 	if err != nil {
-		log.Println("open file " + srcFile + "failed!")
+		log.Println("open file " + srcFile + " failed!")
 	} else {
 		n,_ := f.Seek(0,os.SEEK_END)
 		_,err = f.WriteAt(bytes,n)

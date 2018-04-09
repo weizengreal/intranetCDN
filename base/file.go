@@ -1,5 +1,7 @@
 package base
 
+import "sync"
+
 // 当前任务应该使用的文件信息
 type Resource struct {
 	Path string
@@ -25,9 +27,11 @@ type Block struct {
 type Context struct {
 	Res *Resource
 	FileMap map[string]*Block // key 为每一个 block 存储的名称，block 为当前需要下载的内容
+	TmpPath []string // 保存在 FileMap 中的数据是无序的，这里使用 slice 保存有序的数据分割路径
+	Group sync.WaitGroup  // 记录上下文的锁
 }
 
-// 文件保存指针，用于高速 SendGet 函数应该将文件保存在哪里
+// 文件保存指针，用于告诉 SendGet 函数应该将文件保存在哪里
 type FileStroage struct {
 	mode int
 	path string
