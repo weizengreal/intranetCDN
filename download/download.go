@@ -2,7 +2,7 @@ package download
 
 import (
 	"../base"
-	"../http"
+	"../comhttp"
 	"log"
 	"fmt"
 )
@@ -47,7 +47,7 @@ func Download(url string) error {
 
 // 最小的原子化下载工具
 func atomDownload(url string, path string, block *base.Block) error {
-	length,err := http.SendGet(url,path,block.Start,block.End - 1)
+	length,err := comhttp.SendGet(url,path,block.Start,block.End - 1)
 	if err != nil || length != block.BlockSize{
 		if block.AttemptCount < attemptCount {
 			block.AttemptCount++

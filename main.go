@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	//"./httputil"
 	"./download"
-	//"./base"
 )
 
 func init()  {
@@ -12,8 +12,9 @@ func init()  {
 }
 
 func main() {
-	url := "http://kjds-cdn.aibeike.com/webkjdsfiles/3a6c910b45e644739a80522bfd92d4ea.zip"
+	url := "httputil://kjds-cdn.aibeike.com/webkjdsfiles/3a6c910b45e644739a80522bfd92d4ea.zip"
 	fmt.Println(download.Download(url))
+	//httputil.Server()
 
 	//block := &base.Block{
 	//	Start : 0,

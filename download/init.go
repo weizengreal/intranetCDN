@@ -2,7 +2,7 @@ package download
 
 import (
 	"../base"
-	"../http"
+	"../comhttp"
 	"log"
 	"os"
 	"fmt"
@@ -30,7 +30,7 @@ func init() {
 // 初始化下载所需要的参数
 func assignInit(url string) error {
 	prefixName , fullName := base.GetUriName(url)
-	length, support, md5, err := http.SendHead(url)
+	length, support, md5, err := comhttp.SendHead(url)
 	if err != nil {
 		log.Println(err,"have err during sendHead to url!")
 		return err

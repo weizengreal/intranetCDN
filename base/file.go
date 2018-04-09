@@ -43,7 +43,7 @@ func (fs *FileStroage)Writer(p []byte) (int ,error)  {
 	if fs.mode == 1 {
 		// 复制文件流到文件中
 	}else if fs.mode == 2 {
-		// 复制文件流到 http 的 response 中
+		// 复制文件流到 httputil 的 response 中
 	} else {
 		// 同时处理1、2两个mode
 	}

@@ -1,6 +1,6 @@
-package http
+package comhttp
 
-// http 客户端请求方法
+// httputil 客户端请求方法
 
 import (
 	"../base"
