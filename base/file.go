@@ -8,8 +8,9 @@ type Resource struct {
 	Url string
 	Name string
 	Length int64
-	FileMd5 string
-	Support bool
+	FileMd5 string  // 记录通过 http 协议拿到的 filemd5 字符串，可用于判断当前资源是否需要重新下载
+	Support bool  // 表示是否支持断点续传
+	Header map[string][]string  // 记录当前资源的全部 header 头信息
 }
 
 // 一个即将下载的 block 块
