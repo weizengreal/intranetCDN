@@ -1,21 +1,24 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"./comhttp"
 	//"./download"
+	//"./base"
 )
 
 func init()  {
 	// 初始化全局配置，该函数由 golang 内部调用
-	fmt.Println("this is main package init function!")
+	//fmt.Println("this is main package init function!")
 }
 
 func main() {
 	//url := "http://kjds-cdn.aibeike.com/webkjdsfiles/3a6c910b45e644739a80522bfd92d4ea.zip"
-	//fmt.Println(download.Download(url))
+	//context := new(base.Context)
+	//fmt.Println(download.Download(url,context))
 	comhttp.Server()
 
+	//
 	//block := &base.Block{
 	//	Start : 0,
 	//	End : 200,
