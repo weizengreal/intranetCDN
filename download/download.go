@@ -2,35 +2,41 @@ package download
 
 import (
 	"../base"
-	"../comhttp"
 	"log"
 	"fmt"
 	"crypto/md5"
+	//"context"
 )
 
-// 记录当前下载任务的上下文信息，调试阶段先这么写
-var context *base.Context = new(base.Context)
-
-var contextMap map[string] *base.Context = make(map[string] *base.Context)
-
-func Download(url string) error {
+func Download(url string,context *base.Context) error {
 	// 第一步，根据 url 本身和 HEAD 请求初始化文件信息
-	err := assignInit(url)
+	err := AssignInit(url,context)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	// 第二步，根据上下文决定开始下载
+	DownloadAllBlock(context)
+	// 第三步，根据分片下载的数据合并成完整文件
+	mergeBlock(context)
+	return nil
+}
+
+// 将上下文中所有的 block 全部下载下来
+func DownloadAllBlock(context *base.Context)  {
 	for tmpFilePath,block := range context.FileMap {
 		if base.CheckBlockStat(tmpFilePath,block) {
 			continue
 		}
 		context.Group.Add(1)
-		go atomDownload(context.Res.Url,tmpFilePath,block)
+		go atomDownload(tmpFilePath,block,context)
 	}
 	context.Group.Wait()
-	// 第三步，根据分片下载的数据合并成完整文件
-	err = base.CreateFileOnly(context.Res.Path)
+}
+
+// 将下载完成的数据合称为一个完整的文件
+func mergeBlock(context *base.Context) error {
+	err := base.CreateFileOnly(context.Res.Path)
 	if err != nil {
 		fmt.Println("create file failed",err)
 		return err
@@ -48,16 +54,16 @@ func Download(url string) error {
 			context.FileMap[context.TmpPath[i]].BlockMd5 = string(md5Bytes[:])
 		}
 	}
-	return nil
+	return err
 }
 
 // 最小的原子化下载工具
-func atomDownload(url string, path string, block *base.Block) error {
-	length,err := comhttp.SendGet(url,path,block.Start,block.End - 1)
+func atomDownload(path string, block *base.Block,context *base.Context) error {
+	length,err := SendGet(context.Res.Url,path,block.Start,block.End - 1)
 	if err != nil || length != block.BlockSize{
 		if block.AttemptCount < attemptCount {
 			block.AttemptCount++
-			err = atomDownload(url,path,block)
+			err = atomDownload(path,block,context)
 			log.Println("download retry!",err,length,*block)
 		} else {
 			context.Group.Done()

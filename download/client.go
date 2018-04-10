@@ -1,4 +1,4 @@
-package comhttp
+package download
 
 // httputil 客户端请求方法
 
@@ -43,11 +43,11 @@ func SendGet(url string, path string, start int64, end int64) (length int64,err 
 /**
  发送 HEAD 请求，获取资源基本信息
  */
-func SendHead(url string) (length int64,support bool,md5 string, err error) {
+func SendHead(url string) (length int64,support bool,md5 string,header map[string] []string ,err error) {
 	var req *http.Request
 	req ,err = http.NewRequest("HEAD",url,nil)
 	if err != nil {
-		return -1,false,"",err
+		return -1,false,"",nil,err
 	}
 	// 要求服务器返回最新的数据而不是缓存
 	req.Header.Set("Cache-Control","no-cache")
@@ -62,17 +62,17 @@ func SendHead(url string) (length int64,support bool,md5 string, err error) {
 	var resp *http.Response
 	resp, err = client.Do(req)
 	if err != nil {
-		return -1,false,"",err
+		return -1,false,"",resp.Header,err
 	}
 	defer resp.Body.Close()
 	length,err = strconv.ParseInt(resp.Header.Get("Content-Length"),10,64)
 	if err != nil {
-		return -1,false,"",err
+		return -1,false,"",resp.Header,err
 	}
 	// Accept-Ranges 不存在，不支持断点续传
 	if resp.Header.Get("Accept-Ranges") != "" {
 		support = true
 	}
 	md5 = resp.Header.Get("Content-Md5")
-	return length,support,md5,err
+	return length,support,md5,resp.Header,err
 }

@@ -2,12 +2,9 @@ package download
 
 import (
 	"../base"
-	"../comhttp"
 	"log"
 	"os"
 	"flag"
-	"fmt"
-	"encoding/json"
 )
 
 const (
@@ -29,9 +26,9 @@ func init() {
 }
 
 // 初始化下载所需要的参数
-func assignInit(url string) error {
+func AssignInit(url string,context *base.Context) error {
 	prefixName , fullName := base.GetUriName(url)
-	length, support, md5, err := comhttp.SendHead(url)
+	length, support, md5, header ,err := SendHead(url)
 	if err != nil {
 		log.Println(err,"have err during sendHead to url!")
 		return err
@@ -51,18 +48,15 @@ func assignInit(url string) error {
 		Length : length,
 		FileMd5 : md5,
 		Support : support,
+		Header : header,
 	}
-	initBlock()
-
-	bytes,err := json.Marshal(context)
-
-	fmt.Println(string(bytes))
+	initBlock(context)
 
 	return nil
 }
 
 // 初始化上下文资源的 block ，区间划分上左闭右开
-func initBlock()  {
+func initBlock(context *base.Context)  {
 	length := context.Res.Length
 	block := new(base.Block)
 	context.FileMap = make(map[string] *base.Block)
