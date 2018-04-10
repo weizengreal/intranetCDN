@@ -1,55 +1,39 @@
 package comhttp
 
 import (
+	"../download"
+	"../base"
 	"net/http"
 	"fmt"
-	"log"
 	"encoding/json"
+	//"time"
+	"net/textproto"
 )
 
-type ApiResult struct {
-	Status int `json:"status"`
-	Message string `json:"message"`
-}
-
 // 作为服务端搭建 http 服务器
-
 func Server() {
 	http.HandleFunc("/",handler)
-	http.HandleFunc("/download",download)
+	http.HandleFunc("/downloadStable",downloadStable)
+	http.HandleFunc("/downloadChunk",downloadChunk)
 	http.ListenAndServe("localhost:8000",nil)
 }
 
 func handler(w http.ResponseWriter, r *http.Request)  {
-	fmt.Println(*r)
-	fmt.Fprintf(w, "%s %s %s\n", r.Method, r.URL, r.Proto)
-	for k, v := range r.Header {
-		fmt.Fprintf(w, "Header[%q] = %q\n", k, v)
-	}
-	fmt.Fprintf(w, "Host = %q\n", r.Host)
-	fmt.Fprintf(w, "RemoteAddr = %q\n", r.RemoteAddr)
-	if err := r.ParseForm(); err != nil {
-		log.Print(err)
-	}
-	for k, v := range r.Form {
-		fmt.Fprintf(w, "Form[%q] = %q\n", k, v)
-	}
+	//w.Header().Set("Content-Type","application/zip")
+	//bytes := base.ReadFile("/Users/weizeng/vagrant/go/intranetCDN/cache/3a6c910b45e644739a80522bfd92d4ea.zip")
+	//w.Write(bytes)
+	fmt.Fprintf(w,"%s","request will sleep 3 second! \r\n")
+	//time.Sleep(time.Duration(3) * time.Second)
+	fmt.Fprintf(w,"%s","i am weak!")
 }
 
-func download(w http.ResponseWriter, r *http.Request) {
+func downloadStable(w http.ResponseWriter, r *http.Request) {
 	res := &ApiResult{
 		Status:1,
 		Message:"ok",
 	}
 	if err := r.ParseForm(); err != nil {
-		res.Status = -1
-		res.Message = err.Error()
-		fmt.Println(res)
-		bytes,err := json.Marshal(res)
-		if err != nil {
-			fmt.Fprintf(w,"%s","json marshal error!")
-		}
-		fmt.Fprintf(w,"%s",string(bytes))
+		http.Error(w,err.Error(),500)
 		return
 	}
 	uri := r.Form.Get("uri")
@@ -60,16 +44,26 @@ func download(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Fprintf(w,"%s","json marshal error!")
 		}
-		fmt.Println(string(bytes))
 		fmt.Fprintf(w,"%s",string(bytes))
 		return
 	}
-
-	fmt.Fprintf(w, "%s %s %s\n", r.Method, r.URL, r.Proto)
-	fmt.Println(*r)
-	if err := r.ParseForm(); err != nil {
-		log.Print(err)
+	// 获取该资源的上线文信息
+	context := GetUriContext(uri)
+	if context == nil {
+		context = AddContext(uri)
 	}
-	fmt.Println(r.Form.Get("uri"))
+
+	// 检测当前的资源是否需要重复下载
+	if context.Res == nil || context.Res.FileMd5 == ""{
+		download.Download(uri,context)
+	}
+	fmt.Println(*context)
+	w.Header().Set("Content-Type",textproto.MIMEHeader(context.Res.Header).Get("Content-Type"))
+	w.Header().Set("Content-Length",textproto.MIMEHeader(context.Res.Header).Get("Content-Length"))
+	bytes := base.ReadFile(context.Res.Path)
+	w.Write(bytes)
+}
+
+func downloadChunk(w http.ResponseWriter, r *http.Request) {
 
 }
