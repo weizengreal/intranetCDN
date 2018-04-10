@@ -98,11 +98,16 @@ func AppendToFile(srcFile string, bytes []byte) error {
 // 根据一个链接返回当前下载内容的文件名称
 func GetUriName(url string) (prefixName, fullName string) {
 	urlArr := []byte(url)
+	qusIndex := strings.Index(url,"?")
+	if qusIndex != -1 {
+		urlArr = urlArr[0:qusIndex]
+	}
 	index := strings.LastIndex(url,"/")
 	if index == -1 {
 		fullName = string(urlArr[0:])
 	} else if index == len(urlArr) - 1 {
 		urlArr = urlArr[0:index]
+		url = string(urlArr)
 		index = strings.LastIndex(url,"/")
 		if index == -1 {
 			fullName = string(urlArr[0:])
