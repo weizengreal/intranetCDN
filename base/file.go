@@ -10,7 +10,8 @@ type Resource struct {
 	Length int64
 	FileMd5 string  // 记录通过 http 协议拿到的 filemd5 字符串，可用于判断当前资源是否需要重新下载
 	Support bool  // 表示是否支持断点续传
-	Header map[string][]string  // 记录当前资源的全部 header 头信息
+	Header map[string]string  // 记录当前资源的全部 header 头信息
+	IsComplete bool  // 该资源是否下载完成
 }
 
 // 一个即将下载的 block 块
@@ -22,6 +23,7 @@ type Block struct {
 	BlockMd5 string // 该 md5 值用于检测缓存文件
 	AttemptCount int64
 	Next *Block
+	Status bool // 该状态用来表示该 block 是否下载成功
 }
 
 // 文件下载上下文
