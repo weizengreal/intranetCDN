@@ -29,10 +29,10 @@ func CreateFileOnly(path string) (err error) {
 		DeleteFile(path)
 	}
 	f, err := os.Create(path)
-	defer f.Close()
 	if err != nil {
 		log.Println("create file" + path + " faild!" )
 	}
+	defer f.Close()
 	return err
 }
 
@@ -71,10 +71,10 @@ func CheckBlockStat(path string,block *Block) bool {
 // 读取某个文件并返回 byte 数组
 func ReadFile(path string) []byte {
 	f, err := os.Open(path)
-	defer f.Close()
 	if err != nil {
 		log.Fatalln("read file error while open file!",err)
 	}
+	defer f.Close()
 	fileBytes, err := ioutil.ReadAll(f)
 	if err != nil {
 		log.Fatalln("read file error while read file!",err)
@@ -85,13 +85,13 @@ func ReadFile(path string) []byte {
 // 向某个文件末尾添加内容
 func AppendToFile(srcFile string, bytes []byte) error {
 	f,err := os.OpenFile(srcFile,os.O_WRONLY,0644)
-	defer f.Close()
 	if err != nil {
 		log.Println("open file " + srcFile + " failed!")
 	} else {
 		n,_ := f.Seek(0,os.SEEK_END)
 		_,err = f.WriteAt(bytes,n)
 	}
+	defer f.Close()
 	return err
 }
 
