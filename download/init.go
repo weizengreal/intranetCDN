@@ -49,6 +49,7 @@ func AssignInit(url string,context *base.Context) error {
 		FileMd5 : md5,
 		Support : support,
 		Header : header,
+		IsComplete : false,
 	}
 	initBlock(context)
 
@@ -67,6 +68,7 @@ func initBlock(context *base.Context)  {
 		block.BlockSize = block.End - block.Start
 		block.BlockId = tmpName
 		block.BlockMd5 = context.Res.FileMd5
+		block.Status = false
 		context.FileMap[context.Res.Path] = block
 		//context.TmpPath = append(context.TmpPath, context.Res.Path)
 		return
@@ -86,6 +88,7 @@ func initBlock(context *base.Context)  {
 		}
 		block.BlockSize = block.End - block.Start
 		block.BlockId = tmpName
+		block.Status = false
 		context.FileMap[root + tmpName] = block
 		context.TmpPath = append(context.TmpPath, root + tmpName)
 	}

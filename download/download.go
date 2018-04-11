@@ -18,7 +18,7 @@ func Download(url string,context *base.Context) error {
 	// 第二步，根据上下文决定开始下载
 	DownloadAllBlock(context)
 	// 第三步，根据分片下载的数据合并成完整文件
-	mergeBlock(context)
+	MergeBlock(context)
 	return nil
 }
 
@@ -32,10 +32,11 @@ func DownloadAllBlock(context *base.Context)  {
 		go atomDownload(tmpFilePath,block,context)
 	}
 	context.Group.Wait()
+	context.Res.IsComplete = true
 }
 
 // 将下载完成的数据合称为一个完整的文件
-func mergeBlock(context *base.Context) error {
+func MergeBlock(context *base.Context) error {
 	err := base.CreateFileOnly(context.Res.Path)
 	if err != nil {
 		fmt.Println("create file failed",err)
@@ -66,11 +67,24 @@ func atomDownload(path string, block *base.Block,context *base.Context) error {
 			err = atomDownload(path,block,context)
 			log.Println("download retry!",err,length,*block)
 		} else {
+			// 重试次数超出限制，释放锁并设置该 block 的下载状态Wie失败
+			block.Status = false
 			context.Group.Done()
 		}
 	} else {
 		// 释放 wait 信息
+		block.Status = true
 		context.Group.Done()
 	}
 	return err
+}
+
+// 检测一个上下文信息是否出现变化，false 表示没有变化，true 表示发生变化了
+func IsChange(context *base.Context) bool {
+	if _,_,_,header ,err := SendHead(context.Res.Url); err != nil {
+		return true
+	} else if md5Str,ok := header["Content-Md5"]; ok && md5Str == context.Res.FileMd5 {
+		return false
+	}
+	return true
 }
